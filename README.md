@@ -21,6 +21,15 @@ Each operating system has its own preferences for where applications should stor
 
 Checkpoint was only tested on the above platforms. Testing and contributions for other platforms are welcome and appreciated.
 
+By default, data written to and read from files is interpretted in binary mode. Some file extensions are recognized as non-binary data, and will be interpretted accordingly:
+
+| File Extension | Interpretation |
+| -------------- | -------------- |
+| .json          | JSON           |
+| .*             | Binary         |
+
+Note that some data formats only support a subset of structures. For example, writing Defold's `vmath.vector3()` to a binary file is valid, however writing it to a JSON file is not. When in doubt, break down structures into Lua primitives before writing to a file.
+
 ## Installation
 
 Add Checkpoint as a dependency in your `game.project` file:  
@@ -32,10 +41,10 @@ https://github.com/britzl/defold-lfs/archive/master.zip
 Require `checkpoint.lua` in any script or module:  
 `local m_checkpoint = require("checkpoint.checkpoint")`
 
-## API
+## Minimal API Reference
 
 ```lua
--- Checks if a file exists.
+-- Checks if a file or directory exists.
 local exists = checkpoint.exists(path)
 
 -- Writes data to a file.
@@ -45,11 +54,11 @@ local success, err = checkpoint.write(path, data)
 local data, err = checkpoint.read(path)
 ```
 
+## Comprehensive API Reference
+
 ### checkpoint.exists(path)
 
-Checks if a file exists.
-
-This function is useful when deciding whether to read data from a file, or use default data if there's no file to read from.
+Checks if a file or directory exists.
 
 **Parameters**
 
@@ -62,6 +71,10 @@ This function is useful when deciding whether to read data from a file, or use d
 **Example**
 
 ```lua
+-- In this example, we want to read settings data from a JSON file on launch.
+-- If the file exists, then the player has played the game before, and we should use whatever settings are in that file.
+-- If the file does not exist, then the player has not played the game before, and we should use default settings instead.
+
 local path = "settings.json"
 local default_data = { fullscreen = true }
 
@@ -78,9 +91,7 @@ end
 
 Writes data to a file.
 
-If the file doesn't exist, then it will be created, along with its entire directory hierarchy.
-
-By default, data is serialized and deserialized in binary mode. This allows the user to write and read Defold structures like `vmath.vector3()`. However, if the specified `path` has a file extension of `.json`, then only data types supported by JSON are valid.
+If the file does not exist, then it will be created, along with its entire directory hierarchy.
 
 **Parameters**
 
@@ -95,8 +106,9 @@ By default, data is serialized and deserialized in binary mode. This allows the 
 **Example**
 
 ```lua
--- Since the `.myformat` file type is interpretted as a binary file,
--- serializing and deserializing `vmath.vector3()` is valid.
+-- Writing a `vmath.vector3()` to a `.myformat` file is valid,
+-- since that file extension defaults to binary data.
+
 local path = "profiles/klaleus/data.myformat"
 local data = { coordinates = vmath.vector3(7, 4, 7) }
 
@@ -104,9 +116,9 @@ local success, err = m_checkpoint.write(path, data)
 ```
 
 ```lua
--- Since the `.json` file type is interpretted as a text file,
--- serializing and deserializing `vmath.vector3()` is invalid.
--- Therefore, `coordinates` is broken down into primitives.
+-- Writing a `vmath.vector3()` to a `.json` file is invalid,
+-- so we need to break it down into Lua primitives.
+
 local path = "profiles/klaleus/data.json"
 local data = { x = 7, y = 4, z = 7 }
 
