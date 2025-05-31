@@ -8,7 +8,7 @@ Please click the ☆ button on GitHub if this repository is useful. Thank you!
 
 ## Introduction
 
-There are many libraries available that more or less perform these ubiquitous file-related operations. Checkpoint differentiates itself by focusing on an extremely simple API, and perhaps more importantly, its ability to work with directory hierarchies rather than just stuffing one standard save location with multiple unrelated files.
+There are many libraries available that more or less perform these ubiquitous file-related operations. Checkpoint differentiates itself by focusing on an extremely simple API, and perhaps more importantly, its ability to work with directory hierarchies rather than bloating one directory with multiple unrelated files.
 
 In order to work with the user's file system, Checkpoint depends on the [Lua File System](https://github.com/britzl/defold-lfs) library.
 

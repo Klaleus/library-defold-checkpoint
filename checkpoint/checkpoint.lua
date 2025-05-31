@@ -75,6 +75,7 @@ local function create_directories(path)
 			end
 		end
 	end
+	return true
 end
 
 local function write_json(path, data)
