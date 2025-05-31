@@ -34,6 +34,17 @@ Require `checkpoint.lua` in any script or module:
 
 ## API
 
+```lua
+-- Checks if a file exists.
+local exists = checkpoint.exists(path)
+
+-- Writes data to a file.
+local success, err = checkpoint.write(path, data)
+
+-- Reads data from a file.
+local data, err = checkpoint.read(path)
+```
+
 ### checkpoint.exists(path)
 
 Checks if a file exists.
@@ -42,21 +53,22 @@ This function is useful when deciding whether to read data from a file, or use d
 
 **Parameters**
 
-* `path`: Relative path from the root save directory.
+* `path` Relative path from the root save directory.
 
 **Returns**
 
-* `true` or `false`.
+* `boolean`
 
 **Example**
 
 ```lua
-if m_checkpoint.exists("settings.json") then
-    local data, err = m_checkpoint.read("settings.json")
-    -- configure settings via `data`
+local path = "settings.json"
+local default_data = { fullscreen = true }
+
+if m_checkpoint.exists(path) then
+    local data, err = m_checkpoint.read(path)
 else
-    local success, err = m_checkpoint.write("settings.json", default_data)
-    -- configure settings via `default_data`
+    local success, err = m_checkpoint.write(path, default_data)
 end
 ```
 
@@ -68,47 +80,37 @@ Writes data to a file.
 
 If the file doesn't exist, then it will be created, along with its entire directory hierarchy.
 
-Note that Defold structures like `vmath.vector3()` are only compatible with binary file types.
-If you'd like to write one of these structures to a file, then consider breaking it down into primitives.
+By default, data is serialized and deserialized in binary mode. This allows the user to write and read Defold structures like `vmath.vector3()`. However, if the specified `path` has a file extension of `.json`, then only data types supported by JSON are valid.
 
 **Parameters**
 
-* `path`: Relative path from the root save directory.
-* `data`: Data table.
+* `path` Relative path from the root save directory.
+* `data` Data table.
 
 **Returns**
 
 * `true` on success.
-* `false` and an error string on failure.
+* `false` and an error `string` on failure.
 
 **Example**
 
 ```lua
-local data =
-{
-    age = 27,
-    favorite_season = "winter",
+-- Since the `.myformat` file type is interpretted as a binary file,
+-- serializing and deserializing `vmath.vector3()` is valid.
+local path = "profiles/klaleus/data.myformat"
+local data = { coordinates = vmath.vector3(7, 4, 7) }
 
-    -- The binary file format `.myformat` allows proper serialization and deserialization of `vmath.vector3()`.
-    coordinates = vmath.vector3(4, 7, 4)
-}
-
-local success, err = m_checkpoint.write("profiles/klaleus/bio.myformat", data)
+local success, err = m_checkpoint.write(path, data)
 ```
 
 ```lua
-local data =
-{
-    age = 27,
-    favorite_season = "winter",
+-- Since the `.json` file type is interpretted as a text file,
+-- serializing and deserializing `vmath.vector3()` is invalid.
+-- Therefore, `coordinates` is broken down into primitives.
+local path = "profiles/klaleus/data.json"
+local data = { x = 7, y = 4, z = 7 }
 
-    -- The `.json` format doesn't allow proper serialization and deserialization, so `vmath.vector3()` is broken down into primitives.
-    coordinates_x = 4,
-    coordinates_y = 7,
-    coordinates_z = 4
-}
-
-local success, err = m_checkpoint.write("profiles/klaleus/bio.json", data)
+local success, err = m_checkpoint.write(path, data)
 ```
 
 ---
@@ -119,15 +121,16 @@ Reads data from a file.
 
 **Parameters**
 
-* `path`: Relative path from the root save directory.
+* `path` Relative path from the root save directory.
 
 **Returns**
 
-* Table on success.
-* `false` and an error string on failure.
+* `table` on success.
+* `false` and an error `string` on failure.
 
 **Example**
 
 ```lua
-local data, err = m_checkpoint.read("settings.json")
+local path = "settings.json"
+local data, err = m_checkpoint.read(path)
 ```
