@@ -4,7 +4,7 @@ Checkpoint is a simple library for writing and reading data to and from files in
 
 Please click the ☆ button on GitHub if this repository is useful. Thank you!
 
-![Checkpoint Thumbnail](https://github.com/user-attachments/assets/8172ef2f-109c-4534-8cbf-1fda5ad3f7f2)
+![Checkpoint Thumbnail](https://github.com/user-attachments/assets/0ce7bb0a-ce70-42fd-aaf4-35626a8d00a2)
 
 ## Introduction
 
