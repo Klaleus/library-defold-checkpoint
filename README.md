@@ -4,7 +4,7 @@ Checkpoint is a simple library for writing and reading data to and from files in
 
 Please click the ☆ button on GitHub if this repository is useful. Thank you!
 
-![Checkpoint Thumbnail](https://github.com/user-attachments/assets/0ce7bb0a-ce70-42fd-aaf4-35626a8d00a2)
+![Checkpoint Thumbnail](https://github.com/user-attachments/assets/8172ef2f-109c-4534-8cbf-1fda5ad3f7f2)
 
 ## Introduction
 
@@ -44,48 +44,20 @@ Require `checkpoint.lua` in any script or module:
 ## Minimal API Reference
 
 ```lua
--- Checks if a file or directory exists.
-local exists = checkpoint.exists(path)
-
 -- Writes data to a file.
 local success, err = checkpoint.write(path, data)
 
 -- Reads data from a file.
 local data, err = checkpoint.read(path)
+
+-- Checks if a file or directory exists.
+local exists = checkpoint.exists(path)
+
+-- Lists all files under the root save directory.
+local paths = checkpoint.list()
 ```
 
 ## Comprehensive API Reference
-
-### checkpoint.exists(path)
-
-Checks if a file or directory exists.
-
-**Parameters**
-
-* `path` Relative path from the root save directory.
-
-**Returns**
-
-* `boolean`
-
-**Example**
-
-```lua
--- In this example, we want to read settings data from a JSON file on launch.
--- If the file exists, then the player has played the game before, and we should use whatever settings are in that file.
--- If the file does not exist, then the player has not played the game before, and we should use default settings instead.
-
-local path = "settings.json"
-local default_data = { fullscreen = true }
-
-if m_checkpoint.exists(path) then
-    local data, err = m_checkpoint.read(path)
-else
-    local success, err = m_checkpoint.write(path, default_data)
-end
-```
-
----
 
 ### checkpoint.write(path, data)
 
@@ -145,4 +117,74 @@ Reads data from a file.
 ```lua
 local path = "settings.json"
 local data, err = m_checkpoint.read(path)
+```
+
+---
+
+### checkpoint.exists(path)
+
+Checks if a file or directory exists.
+
+**Parameters**
+
+* `path` Relative path from the root save directory.
+
+**Returns**
+
+* `boolean`
+
+**Example**
+
+```lua
+-- In this example, we want to read settings data from a JSON file on launch.
+-- If the file exists, then the player has played the game before, and we should use whatever settings are in that file.
+-- If the file does not exist, then the player has not played the game before, and we should use default settings instead.
+
+local path = "settings.json"
+local default_data = { fullscreen = true }
+
+if m_checkpoint.exists(path) then
+    local data, err = m_checkpoint.read(path)
+else
+    local success, err = m_checkpoint.write(path, default_data)
+end
+```
+
+---
+
+### checkpoint.list()
+
+Lists all files under the root save directory.
+
+**Returns**
+
+* `table` Array of relative paths from the root save directory.
+
+**Example**
+
+```lua
+-- In this example, the follow root save directory is populated as follows:
+--
+-- root_save_dir/
+--     settings.json
+--     profiles/
+--         klaleus.json
+--     levels/
+--         level_1.map
+--
+-- Calling `m_checkpoint.list()` returns:
+--
+-- {
+--     "settings.json",
+--     "profiles/klaleus.json",
+--     "levels/level_1.map"
+-- }
+
+local paths = m_checkpoint.list()
+
+for i = 1, #paths do
+    local path = paths[i]
+    local data, err = m_checkpoint.read(path)
+    ...
+end
 ```

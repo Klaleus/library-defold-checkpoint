@@ -49,7 +49,7 @@ local function get_path_components(path)
 		name_index = separator_index + 1
 		separator_index = string.find(path, "/", name_index)
 	end
-	-- Remainder of the path is the file name and file extension.
+	-- Remainder of the path is the file name.
 	local file_name = string.sub(path, name_index)
 	components[#components + 1] = file_name
 	return components
@@ -60,13 +60,13 @@ local function create_directories(path)
 	-- Strategy is to build the absolute path string component by component.
 	-- The absolute path to the root save directory is guarenteed to already exist,
 	-- so we tack on the remaining components and create them if they don't exist.
-	local absolute_path = sys.get_save_file(_project_title, "")
+	local root_path = sys.get_save_file(_project_title, "")
 	local path_components = get_path_components(path)
 	-- Consider each directory individually.
 	-- The last component is the file name, which should be skipped.
 	for i = 1, #path_components - 1 do
 		local directory_name = path_components[i]
-		absolute_path = absolute_path .. directory_name .. "/"
+		local absolute_path = root_path .. directory_name .. "/"
 		local attributes = lfs.attributes(absolute_path)
 		if not attributes then
 			local success, err = lfs.mkdir(absolute_path)
@@ -146,23 +146,6 @@ end
 --------------------------------------------------------------------------------
 
 --
--- Checks if a file or directory exists.
---
--- Parameters
---
--- * `path` Relative path from the root save directory.
---
--- Returns
---
--- * `boolean`
---
-function m_checkpoint.exists(path)
-	local absolute_path = sys.get_save_file(_project_title, path)
-	local attributes = lfs.attributes(absolute_path)
-	return attributes and true or false
-end
-
---
 -- Writes data to a file.
 --
 -- If the file does not exist, then it will be created, along with its entire directory hierarchy.
@@ -206,6 +189,60 @@ function m_checkpoint.read(path)
 		return read_json(path)
 	end
 	return read_binary(path)
+end
+
+--
+-- Checks if a file or directory exists.
+--
+-- Parameters
+--
+-- * `path` Relative path from the root save directory.
+--
+-- Returns
+--
+-- * `boolean`
+--
+function m_checkpoint.exists(path)
+	local absolute_path = sys.get_save_file(_project_title, path)
+	local attributes = lfs.attributes(absolute_path)
+	return attributes and true or false
+end
+
+--
+-- Lists all files under the root save directory.
+--
+-- Returns
+--
+-- * `table` Array of relative paths from the root save directory.
+--
+function m_checkpoint.list()
+	-- Strategy is to perform breadth-first search starting from the root save directory.
+	-- Files should added to the results table, whereas directories should be added to the search table.
+	local paths = {}
+	local root_path = sys.get_save_file(_project_title, "")
+	-- All directories have been visited and searched once this array is empty.
+	-- These paths are appended to the root path.
+	-- For example, the path "" is the root directory, and the path "mydir" is "<root_path>/mydir".
+	local directory_paths = { "" }
+	while #directory_paths > 0 do
+		local directory_path = directory_paths[1]
+		for component in lfs.dir(root_path .. directory_path) do
+			if component ~= "." and component ~= ".." then
+				local absolute_path = root_path .. directory_path .. component
+				local mode = lfs.attributes(absolute_path, "mode")
+				if mode == "file" then
+					pprint(component)
+					-- We return paths relative to the root directory because they are compatible with all other public `m_checkpoint.___()` functions.
+					paths[#paths + 1] = directory_path .. component
+				elseif mode == "directory" then
+					pprint(component)
+					directory_paths[#directory_paths + 1] = directory_path .. component .. "/"
+				end
+			end
+		end
+		table.remove(directory_paths, 1)
+	end
+	return paths
 end
 
 return m_checkpoint
