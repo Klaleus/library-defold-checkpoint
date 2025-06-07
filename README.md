@@ -4,7 +4,7 @@ Checkpoint is a simple library for writing and reading data to and from files in
 
 Please click the ☆ button on GitHub if this repository is useful. Thank you!
 
-![Checkpoint Thumbnail](https://github.com/user-attachments/assets/8172ef2f-109c-4534-8cbf-1fda5ad3f7f2)
+![Checkpoint Thumbnail](https://github.com/user-attachments/assets/147fcb2e-84ad-407b-bd1e-39722a3d54f1)
 
 ## Introduction
 
@@ -163,7 +163,7 @@ Lists all files under the root save directory.
 **Example**
 
 ```lua
--- In this example, the follow root save directory is populated as follows:
+-- In this example, the root save directory is populated as follows:
 --
 -- root_save_dir/
 --     settings.json
