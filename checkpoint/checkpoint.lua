@@ -231,11 +231,9 @@ function m_checkpoint.list()
 				local absolute_path = root_path .. directory_path .. component
 				local mode = lfs.attributes(absolute_path, "mode")
 				if mode == "file" then
-					pprint(component)
 					-- We return paths relative to the root directory because they are compatible with all other public `m_checkpoint.___()` functions.
 					paths[#paths + 1] = directory_path .. component
 				elseif mode == "directory" then
-					pprint(component)
 					directory_paths[#directory_paths + 1] = directory_path .. component .. "/"
 				end
 			end
